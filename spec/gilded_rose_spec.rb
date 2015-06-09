@@ -37,7 +37,7 @@ describe GildedRose do
     end
 
     def self.when_sell_by_date_is(date, &block)
-      context_class = context "with 25 sell by date" do
+      context_class = context "with #{date} sell by date" do
         let(:initial_sell_in) {date}
       end
 
@@ -106,7 +106,7 @@ describe GildedRose do
       it_lowers_the_sell_in_value_by(1)
       it_lowers_the_quality_by(2)
       when_initial_quality_is(0) { it_lowers_the_quality_by(0) }
-      when_sell_by_date_is(-1) {it_lowers_the_quality_by(2)}
+      when_sell_by_date_is(-1) {it_lowers_the_quality_by(4)}
     end
   end
 end
