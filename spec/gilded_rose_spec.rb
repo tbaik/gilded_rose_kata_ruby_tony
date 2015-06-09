@@ -18,14 +18,6 @@ describe GildedRose do
       end
     end
 
-    def self.it_does_not_lower_the_quality_beyond_0
-      context "with 0 initial quality" do
-        let(:initial_quality) {0}
-
-        it_lowers_the_quality_by(0)
-      end
-    end
-
     def self.it_lowers_the_sell_in_value_by(value)
       it "lowers the sell_in value by #{value}" do
         expect(items[0].sell_in).to eq(initial_sell_in - value)
@@ -44,36 +36,28 @@ describe GildedRose do
       end
     end
 
-    def self.it_lowers_the_quality_by_2_with_negative_sell_by_date
-      context "with negative sell by date" do
-        let(:initial_sell_in) {-1}
-
-        it_lowers_the_quality_by(2)
+    def self.when_sell_by_date_is(date, &block)
+      context_class = context "with 25 sell by date" do
+        let(:initial_sell_in) {date}
       end
+
+      context_class.class_eval &block
     end
 
-    def self.it_increases_the_quality_by_2_with_negative_sell_by_date
-      context "with negative sell by date" do
-        let(:initial_sell_in) {-1}
-
-        it_increases_the_quality_by(2)
+    def self.when_initial_quality_is(value, &block)
+      context_class = context "with #{value} initial quality" do
+        let(:initial_quality) {value}
       end
-    end
 
-    def self.it_does_not_increase_quality_beyond_50_quality
-      context "with 50 initial quality" do
-        let(:initial_quality) {50}
-
-        it_increases_the_quality_by(0)
-      end
+      context_class.class_eval &block
     end
 
     context "Normal item" do
       it_does_not_change_the_name
-      it_does_not_lower_the_quality_beyond_0
       it_lowers_the_sell_in_value_by(1)
       it_lowers_the_quality_by(1)
-      it_lowers_the_quality_by_2_with_negative_sell_by_date
+      when_initial_quality_is(0) { it_lowers_the_quality_by(0) }
+      when_sell_by_date_is(-1) {it_lowers_the_quality_by(2)}
     end
 
     context "Aged Brie" do
@@ -82,8 +66,8 @@ describe GildedRose do
       it_does_not_change_the_name
       it_lowers_the_sell_in_value_by(1)
       it_increases_the_quality_by(1)
-      it_increases_the_quality_by_2_with_negative_sell_by_date
-      it_does_not_increase_quality_beyond_50_quality
+      when_sell_by_date_is(-1) {it_increases_the_quality_by(2)}
+      when_initial_quality_is(50) {it_increases_the_quality_by(0)}
     end
 
     context "Sulfuras, Hand of Ragnaros" do
@@ -104,29 +88,11 @@ describe GildedRose do
 
       it_does_not_change_the_name
       it_lowers_the_sell_in_value_by(1)
-      it_does_not_increase_quality_beyond_50_quality
-
-      context "with 25 sell by date" do
-        let(:initial_sell_in) {25}
-
-        it_increases_the_quality_by(1)
-      end
-
-      context "with 10 sell by date" do
-        let(:initial_sell_in) {10}
-
-        it_increases_the_quality_by(2)
-      end
-
-      context "with 5 sell by date" do
-        let(:initial_sell_in) {5}
-
-        it_increases_the_quality_by(3)
-      end
-
-      context "after the concert is over" do
-        let(:initial_sell_in) {-1}
-
+      when_initial_quality_is(50) {it_increases_the_quality_by(0)}
+      when_sell_by_date_is(25) { it_increases_the_quality_by(1) }
+      when_sell_by_date_is(10) { it_increases_the_quality_by(2) }
+      when_sell_by_date_is(5) { it_increases_the_quality_by(3) }
+      when_sell_by_date_is(-1) do
         it "drops the quality to 0" do
           expect(items[0].quality).to eq(0)
         end
@@ -137,10 +103,10 @@ describe GildedRose do
       let(:name) {"Conjured Mana Cake"}
 
       it_does_not_change_the_name
-      it_does_not_lower_the_quality_beyond_0
       it_lowers_the_sell_in_value_by(1)
       it_lowers_the_quality_by(2)
-      it_lowers_the_quality_by_2_with_negative_sell_by_date
+      when_initial_quality_is(0) { it_lowers_the_quality_by(0) }
+      when_sell_by_date_is(-1) {it_lowers_the_quality_by(2)}
     end
   end
 end
