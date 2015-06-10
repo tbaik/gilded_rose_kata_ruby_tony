@@ -11,16 +11,17 @@ class GildedRose
   def update_quality()
     @items.each do |item|
       item_update_rates = item_update_rates(item)
-      expired = expired?(item)
+      quality_update_rate = expired?(item) ?
+        item_update_rates.expired_quality_update_rate :
+        item_update_rates.quality_update_rate
 
       update_sell_in(item, item_update_rates.sell_in_update_rate)
-      update_item_quality(item, quality_update_amount(expired, item_update_rates))
+      update_item_quality(item, quality_update_rate)
     end
   end
 
   def item_update_rates(item)
     item_name = item.name.start_with?("Conjured") ? CONJURED : item.name
-
     update_rate_hash = {
       AGED_BRIE => CheeseUpdateRates.new,
       BACKSTAGE_PASSES => BackstagePassItemUpdateRates.new(item),
@@ -35,14 +36,6 @@ class GildedRose
       end
   end
 
-  def quality_update_amount(expired, item_update_rates)
-    if expired
-      return item_update_rates.expired_quality_update_rate
-    else
-      return item_update_rates.quality_update_rate
-    end
-  end
-
   def expired?(item)
     item.sell_in < 0
   end
@@ -51,9 +44,9 @@ class GildedRose
     item.sell_in = item.sell_in + value
   end
 
-  def update_item_quality(item, value)
+  def update_item_quality(item, rate)
     if ((item.quality < 50) && (item.quality > 0))
-      item.quality = item.quality + value
+      item.quality = item.quality + rate
     end
   end
 end
