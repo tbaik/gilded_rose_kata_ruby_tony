@@ -11,9 +11,10 @@ class GildedRose
   def update_quality()
     @items.each do |item|
       item_update_rates = item_update_rates(item)
+      expired = expired?(item)
 
-      update_item_quality(item, quality_update_amount(item, item_update_rates))
       update_sell_in(item, item_update_rates.sell_in_update_rate)
+      update_item_quality(item, quality_update_amount(expired, item_update_rates))
     end
   end
 
@@ -34,8 +35,8 @@ class GildedRose
       end
   end
 
-  def quality_update_amount(item, item_update_rates)
-    if expired?(item)
+  def quality_update_amount(expired, item_update_rates)
+    if expired
       return item_update_rates.expired_quality_update_rate
     else
       return item_update_rates.quality_update_rate
