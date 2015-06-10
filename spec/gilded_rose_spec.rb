@@ -57,7 +57,7 @@ describe GildedRose do
       it_lowers_the_sell_in_value_by(1)
       it_lowers_the_quality_by(1)
       when_initial_quality_is(0) { it_lowers_the_quality_by(0) }
-      when_sell_by_date_is(-1) {it_lowers_the_quality_by(2)}
+      when_sell_by_date_is(-1) { it_lowers_the_quality_by(2) }
     end
 
     context "Aged Brie" do
@@ -66,8 +66,8 @@ describe GildedRose do
       it_does_not_change_the_name
       it_lowers_the_sell_in_value_by(1)
       it_increases_the_quality_by(1)
-      when_sell_by_date_is(-1) {it_increases_the_quality_by(2)}
-      when_initial_quality_is(50) {it_increases_the_quality_by(0)}
+      when_sell_by_date_is(-1) { it_increases_the_quality_by(2) }
+      when_initial_quality_is(50) { it_increases_the_quality_by(0) }
     end
 
     context "Sulfuras, Hand of Ragnaros" do
@@ -88,7 +88,7 @@ describe GildedRose do
 
       it_does_not_change_the_name
       it_lowers_the_sell_in_value_by(1)
-      when_initial_quality_is(50) {it_increases_the_quality_by(0)}
+      when_initial_quality_is(50) { it_increases_the_quality_by(0) }
       when_sell_by_date_is(25) { it_increases_the_quality_by(1) }
       when_sell_by_date_is(10) { it_increases_the_quality_by(2) }
       when_sell_by_date_is(5) { it_increases_the_quality_by(3) }
@@ -106,7 +106,7 @@ describe GildedRose do
       it_lowers_the_sell_in_value_by(1)
       it_lowers_the_quality_by(2)
       when_initial_quality_is(0) { it_lowers_the_quality_by(0) }
-      when_sell_by_date_is(-1) {it_lowers_the_quality_by(4)}
+      when_sell_by_date_is(-1) { it_lowers_the_quality_by(4) }
     end
   end
 end
