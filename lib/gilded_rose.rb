@@ -10,47 +10,44 @@ class GildedRose
 
   def update_quality()
     @items.each do |item|
-      if item.name != SULFURAS
-        item.sell_in = item.sell_in - 1
-      end
+      item_update_rates = item_update_rates(item)
 
-      quality_update_amount = quality_update_amount(item)
-      update_item_quality(item, quality_update_amount)
+      update_item_quality(item, quality_update_amount(item, item_update_rates))
+      update_sell_in(item, item_update_rates.sell_in_update_rate)
     end
   end
 
-  def quality_update_amount(item)
-    if expired?(item)
-      case
-      when item.name == AGED_BRIE
-        return CheeseUpdateRates.new.expired_quality_update_rate
-      when item.name.start_with?(CONJURED)
-        return ConjuredItemUpdateRates.new.expired_quality_update_rate
-      when item.name == BACKSTAGE_PASSES
-        return BackstagePassItemUpdateRates.new(item).expired_quality_update_rate
-      when item.name == SULFURAS
-        return LegendaryItemUpdateRates.new.expired_quality_update_rate
-      else
-        return ItemUpdateRates.new.expired_quality_update_rate
-      end
-    end
+  def item_update_rates(item)
+    item_name = item.name.start_with?("Conjured") ? CONJURED : item.name
 
-    case
-    when item.name == AGED_BRIE
-      return CheeseUpdateRates.new.quality_update_rate
-    when item.name.start_with?(CONJURED)
-      return ConjuredItemUpdateRates.new.quality_update_rate
-    when item.name == BACKSTAGE_PASSES
-      return BackstagePassItemUpdateRates.new(item).quality_update_rate
-    when item.name == SULFURAS
-      return LegendaryItemUpdateRates.new.quality_update_rate
+    update_rate_hash = {
+      AGED_BRIE => CheeseUpdateRates.new,
+      BACKSTAGE_PASSES => BackstagePassItemUpdateRates.new(item),
+      CONJURED => ConjuredItemUpdateRates.new,
+      SULFURAS => LegendaryItemUpdateRates.new
+    }
+
+      if update_rate_hash.has_key? item_name
+        return update_rate_hash[item_name]
+      else
+        return ItemUpdateRates.new
+      end
+  end
+
+  def quality_update_amount(item, item_update_rates)
+    if expired?(item)
+      return item_update_rates.expired_quality_update_rate
     else
-      return ItemUpdateRates.new.quality_update_rate
+      return item_update_rates.quality_update_rate
     end
   end
 
   def expired?(item)
     item.sell_in < 0
+  end
+
+  def update_sell_in(item, value)
+    item.sell_in = item.sell_in + value
   end
 
   def update_item_quality(item, value)
