@@ -20,47 +20,36 @@ class GildedRose
   end
 
   def quality_update_amount(item)
-    if past_sell_date?(item)
+    if expired?(item)
       case
       when item.name == AGED_BRIE
-        return 2
+        return CheeseUpdateRates.new.expired_quality_update_rate
       when item.name.start_with?(CONJURED)
-        return -4
+        return ConjuredItemUpdateRates.new.expired_quality_update_rate
       when item.name == BACKSTAGE_PASSES
-        return -item.quality
+        return BackstagePassItemUpdateRates.new(item).expired_quality_update_rate
       when item.name == SULFURAS
-        return 0
+        return LegendaryItemUpdateRates.new.expired_quality_update_rate
       else
-        return -2
+        return ItemUpdateRates.new.expired_quality_update_rate
       end
     end
 
     case
     when item.name == AGED_BRIE
-      return 1
+      return CheeseUpdateRates.new.quality_update_rate
     when item.name.start_with?(CONJURED)
-      return -2
+      return ConjuredItemUpdateRates.new.quality_update_rate
     when item.name == BACKSTAGE_PASSES
-      return backstage_quality_amount(item.sell_in)
+      return BackstagePassItemUpdateRates.new(item).quality_update_rate
     when item.name == SULFURAS
-      return 0
+      return LegendaryItemUpdateRates.new.quality_update_rate
     else
-      return -1
+      return ItemUpdateRates.new.quality_update_rate
     end
   end
 
-  def backstage_quality_amount(sell_in)
-    amount = 1
-    if sell_in < 11
-      amount += 1
-    end
-    if sell_in < 6
-      amount += 1
-    end
-    amount
-  end
-
-  def past_sell_date?(item)
+  def expired?(item)
     item.sell_in < 0
   end
 
@@ -71,6 +60,58 @@ class GildedRose
   end
 end
 
+class ItemUpdateRates
+  attr_reader :expired_quality_update_rate, :quality_update_rate, :sell_in_update_rate
+
+  def initialize
+    @expired_quality_update_rate = -2
+    @quality_update_rate = -1
+    @sell_in_update_rate = -1
+  end
+end
+
+class CheeseUpdateRates < ItemUpdateRates
+  def initialize
+    @expired_quality_update_rate = 2
+    @quality_update_rate = 1
+    @sell_in_update_rate = -1
+  end
+end
+
+class ConjuredItemUpdateRates < ItemUpdateRates
+  def initialize
+    @expired_quality_update_rate = -4
+    @quality_update_rate = -2
+    @sell_in_update_rate = -1
+  end
+end
+
+class LegendaryItemUpdateRates < ItemUpdateRates
+  def initialize
+    @expired_quality_update_rate = 0
+    @quality_update_rate = 0
+    @sell_in_update_rate = 0
+  end
+end
+
+class BackstagePassItemUpdateRates < ItemUpdateRates
+  def initialize(item)
+    @expired_quality_update_rate = -item.quality
+    @quality_update_rate = backstage_quality_amount(item.sell_in)
+    @sell_in_update_rate = -1
+  end
+
+  def backstage_quality_amount(sell_in)
+    case sell_in
+    when (0..5)
+      return 3
+    when (6..10)
+      return 2
+    else
+      return 1
+    end
+  end
+end
 
 
 class Item
